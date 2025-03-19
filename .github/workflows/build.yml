@@ -25,49 +25,72 @@ jobs:
       run: |
         brew update
         brew install create-dmg || true
-        
-    - name: List Xcode project structure
-      run: |
-        ls -la
-        find . -name "*.xcodeproj" -type d
       
-    - name: Build
+    - name: Check entitlements file
       run: |
-        cd $GITHUB_WORKSPACE
-        xcodebuild -project HackMD.xcodeproj -scheme "HackMD" -configuration Release -derivedDataPath build DEVELOPMENT_TEAM="" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        cat HackMD/HackMD.entitlements || echo "No entitlements file found"
         
-    - name: Create DMG
+    - name: Examine project structure
       run: |
-        mkdir -p build/Release
-        cp -r build/Build/Products/Release/HackMD.app build/Release/
-        create-dmg \
-          --volname "HackMD for macOS" \
-          --volicon "HackMD/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" \
-          --background "HackMD/Assets.xcassets/dmg-background.imageset/background.png" \
-          --window-pos 200 120 \
-          --window-size 800 450 \
-          --icon-size 100 \
-          --icon "HackMD.app" 200 190 \
-          --hide-extension "HackMD.app" \
-          --app-drop-link 600 185 \
-          --no-internet-enable \
-          "HackMD.dmg" \
-          "build/Release/" \
-        || cp -r build/Release/HackMD.app HackMD.app && zip -r HackMD.zip HackMD.app
+        find . -name "*.xcodeproj" -type d
+        ls -la HackMD.xcodeproj || ls -la */HackMD.xcodeproj
         
-    - name: Upload application as artifact
+    - name: Build for CI (disabling code signing)
+      run: |
+        # Use xcodebuild with special flags for CI environment
+        xcodebuild clean build \
+          -project HackMD.xcodeproj \
+          -scheme "HackMD" \
+          -configuration Release \
+          -derivedDataPath build \
+          CODE_SIGN_IDENTITY=- \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_ENTITLEMENTS= \
+          OTHER_CODE_SIGN_FLAGS="--options=runtime"
+        
+    - name: Package application
+      run: |
+        mkdir -p output
+        APP_PATH=$(find build -name "*.app" -type d)
+        if [ -d "$APP_PATH" ]; then
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" output/
+          # Create a zip as fallback
+          cd output
+          zip -r ../HackMD.zip *
+          cd ..
+          
+          # Try create DMG if possible
+          mkdir -p dmg-build
+          cp -r "$APP_PATH" dmg-build/
+          create-dmg \
+            --volname "HackMD" \
+            --window-size 600 400 \
+            --app-drop-link 450 180 \
+            --icon "HackMD.app" 150 180 \
+            HackMD.dmg \
+            dmg-build/ || echo "DMG creation failed, using ZIP instead"
+        else
+          echo "No app found in build directory"
+          find build -type d -name "*.app"
+          exit 1
+        fi
+        
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: HackMD-app
         path: |
           HackMD.dmg
           HackMD.zip
+        if-no-files-found: warn
         
     - name: Upload to Release
       if: github.event_name == 'release'
       uses: shogo82148/actions-upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./HackMD.dmg
-        asset_name: HackMD.dmg
-        asset_content_type: application/x-apple-diskimage
+        asset_path: ./HackMD.zip
+        asset_name: HackMD.zip
+        asset_content_type: application/zip
