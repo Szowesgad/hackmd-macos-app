@@ -4,55 +4,44 @@ Natywna aplikacja macOS do obsługi HackMD.io z rozszerzonymi funkcjami develope
 
 ## O projekcie
 
-HackMD dla macOS to aplikacja, która zapewnia natywny dostęp do platformy HackMD.io bezpośrednio z systemu macOS. Aplikacja wykorzystuje nowoczesne API WebKit do osadzania interfejsu webowego HackMD, jednocześnie dodając funkcje, które ułatwiają pracę z dokumentami Markdown.
+HackMD dla macOS to natywna aplikacja napisana w Swift, która zapewnia lepsze doświadczenie korzystania z platformy HackMD.io niż standardowa przeglądarka. Aplikacja wykorzystuje WKWebView do wyświetlania zawartości HackMD, jednocześnie dodając natywne funkcje macOS.
 
 ## Funkcje
 
 - Natywna integracja z macOS
-- Tryb ciemny/jasny automatycznie dopasowany do ustawień systemowych
-- Zaawansowane narzędzia developerskie
-- Obsługa powiadomień systemowych
-- Integracja z menu kontekstowym macOS
-- Skróty klawiszowe dla szybkiej nawigacji i edycji
+- Tryb ciemny/jasny zgodny z systemem
+- Narzędzia developerskie
+- Powiadomienia systemowe
+- Wsparcie dla skrótów klawiszowych
+- Widgety macOS
+- Pełne wsparcie dla autoryzacji
 
 ## Wymagania systemowe
 
-- macOS 11.0 (Big Sur) lub nowszy
-- Xcode 13 lub nowszy (do kompilacji)
+- macOS 13.0 lub nowszy
+- Xcode 15.0 lub nowszy (do kompilacji)
 
 ## Instalacja
 
-### Pobranie skompilowanej aplikacji
-
-1. Przejdź do sekcji [Releases](https://github.com/Szowesgad/hackmd-macos-app/releases)
+### Metoda 1: Pobranie aplikacji
+1. Przejdź do zakładki [Releases](https://github.com/Szowesgad/hackmd-macos-app/releases)
 2. Pobierz najnowszą wersję HackMD.dmg
-3. Otwórz plik DMG i przeciągnij aplikację HackMD do folderu Applications
+3. Otwórz plik .dmg i przeciągnij aplikację do folderu Applications
 
-### Kompilacja ze źródeł
+### Metoda 2: Kompilacja ze źródeł
+1. Sklonuj repozytorium
+2. Otwórz HackMD.xcodeproj w Xcode
+3. Skompiluj projekt (⌘+B)
+4. Uruchom aplikację (⌘+R)
 
-1. Sklonuj repozytorium:
-   ```bash
-   git clone https://github.com/Szowesgad/hackmd-macos-app.git
-   cd hackmd-macos-app
-   ```
+## Rozwój projektu
 
-2. Otwórz projekt w Xcode:
-   ```bash
-   open HackMD.xcodeproj
-   ```
+Szczegółowy plan rozwoju znajduje się w [ROADMAP.md](docs/ROADMAP.md).
 
-3. Skompiluj i uruchom aplikację (⌘+R)
-
-## Rozwój
-
-Informacje o planach rozwoju aplikacji znajdziesz w [ROADMAP.md](docs/ROADMAP.md).
+## Współpraca
 
 Jeśli chcesz pomóc w rozwoju projektu, zapoznaj się z [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Licencja
 
-Ten projekt jest objęty licencją MIT. Szczegóły znajdziesz w pliku LICENSE.
-
-## Kontakt
-
-Pytania i sugestie można zgłaszać poprzez [Issues](https://github.com/Szowesgad/hackmd-macos-app/issues).
+Ten projekt jest udostępniany na licencji MIT. Szczegóły w pliku LICENSE.
