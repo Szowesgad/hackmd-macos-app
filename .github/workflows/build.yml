@@ -1,0 +1,48 @@
+name: Build HackMD App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build
+      run: |
+        xcodebuild -project HackMD.xcodeproj -scheme HackMD -configuration Release -derivedDataPath build
+        
+    - name: Create DMG
+      run: |
+        mkdir -p build/Release
+        cp -r build/Build/Products/Release/HackMD.app build/Release/
+        hdiutil create -volname "HackMD" -srcfolder build/Release -ov -format UDZO HackMD.dmg
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: HackMD-app
+        path: HackMD.dmg
+        
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./HackMD.dmg
+        asset_name: HackMD.dmg
+        asset_content_type: application/x-apple-diskimage
