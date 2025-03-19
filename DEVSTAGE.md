@@ -20,6 +20,7 @@ Projekt jest w fazie alfa-1. Zaimplementowana została podstawowa struktura apli
 - [x] Podstawowe okno preferencji użytkownika
 - [x] System integracji powiadomień systemowych
 - [x] Pełne menu aplikacji zgodne z wytycznymi macOS
+- [x] Skonfigurowany GitHub Actions workflow do automatycznego budowania aplikacji
 
 ## Do zaimplementowania w następnym sprincie
 
@@ -59,6 +60,7 @@ Projekt jest w fazie alfa-1. Zaimplementowana została podstawowa struktura apli
 - Aplikacja używa WKWebView zamiast starszego WebView
 - Zaimplementowana jest podstawowa obsługa trybu developerskiego
 - Projekt śledzi wytyczne Human Interface Guidelines Apple
+- Automatyczne buildy są konfigurowane przez GitHub Actions
 
 ## Użyte narzędzia i biblioteki
 
