@@ -4,7 +4,7 @@
 
 ## Obecny stan projektu
 
-Projekt jest we wczesnej fazie rozwoju (pre-alpha). Zaimplementowana została podstawowa struktura aplikacji z interfejsem użytkownika i integracją WebView do wyświetlania HackMD.io. Aplikacja kompiluje się i może być uruchamiana, ale brakuje jeszcze części funkcjonalności z planowanej wersji 1.0.
+Projekt jest w fazie alfa-1. Zaimplementowana została podstawowa struktura aplikacji z interfejsem użytkownika i integracją WebView do wyświetlania HackMD.io. Aplikacja kompiluje się i może być uruchamiana, a kluczowe funkcje z planowanej wersji 1.0 są sukcesywnie dodawane.
 
 ## Ukończone elementy
 
@@ -16,40 +16,39 @@ Projekt jest we wczesnej fazie rozwoju (pre-alpha). Zaimplementowana została po
 - [x] Obsługa narzędzi developerskich
 - [x] Podstawowe menu aplikacji
 - [x] Obsługa okien dialogowych i powiadomień
+- [x] Ikony aplikacji (Assets.xcassets) - format SVG
+- [x] Podstawowe okno preferencji użytkownika
+- [x] System integracji powiadomień systemowych
+- [x] Pełne menu aplikacji zgodne z wytycznymi macOS
 
 ## Do zaimplementowania w następnym sprincie
 
-- [ ] Ikony aplikacji (Assets.xcassets)
-- [ ] Pełna obsługa preferencji użytkownika
-- [ ] Widgety macOS korzystające z WidgetKit
 - [ ] Integracja z menu kontekstowym macOS
 - [ ] Funkcja eksportu do różnych formatów
-- [ ] Obsługa systemu powiadomień
+- [ ] Widgety macOS korzystające z WidgetKit
 - [ ] Automatyczne aktualizacje przez Sparkle
 - [ ] Testy jednostkowe
 
 ## Znane problemy i ograniczenia
 
-1. Brak ikon aplikacji
+1. Preferencje nie są jeszcze w pełni połączone z rzeczywistymi ustawieniami aplikacji
 2. Brak pełnej obsługi motywów (tylko podstawowe przełączanie trybu ciemny/jasny)
-3. Nie zaimplementowano jeszcze systemowych powiadomień
-4. Brak menu preferencji
-5. Brak widgetów macOS
+3. Brak widgetów macOS
+4. Brak funkcji eksportu
 
 ## Priorytety na następny sprint
 
 1. **Wysoki priorytet**:
-   - Implementacja Assets.xcassets z ikonami aplikacji
-   - Utworzenie okna preferencji
-   - Działający system powiadomień
+   - Implementacja funkcji eksportu do różnych formatów (PDF, Markdown)
+   - Integracja z menu kontekstowym macOS
+   - Implementacja automatycznych aktualizacji przez Sparkle
 
 2. **Średni priorytet**:
-   - Integracja z menu kontekstowym
-   - Eksport do różnych formatów
-   - Automatyczne aktualizacje
+   - Widgety macOS
+   - Ulepszenie obsługi zakładek i historii
+   - Zaawansowana integracja z systemem powiadomień
 
 3. **Niski priorytet**:
-   - Widgety macOS
    - Testy jednostkowe
    - Dodatkowe ulepszenia UI
 
@@ -66,7 +65,7 @@ Projekt jest we wczesnej fazie rozwoju (pre-alpha). Zaimplementowana została po
 - Swift 5.0
 - Cocoa
 - WebKit
-- UserNotifications (planowane)
+- UserNotifications
 - WidgetKit (planowane)
 - Sparkle (planowane)
 
