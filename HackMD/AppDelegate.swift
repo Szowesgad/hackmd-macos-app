@@ -21,6 +21,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // Request notification permissions
         setupNotifications()
         
+        // Register URL scheme handler
+        registerURLSchemeHandler()
+        
+        // Check for updates in background (will be silent unless an update is available)
+        checkForUpdates(inBackground: true)
+        
         // Configure WKWebView
         let webConfiguration = WKWebViewConfiguration()
         
@@ -101,6 +107,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         aboutItem.target = self
         appMenu.addItem(aboutItem)
         
+        // Check for updates item
+        let checkForUpdatesItem = NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: "u")
+        checkForUpdatesItem.target = self
+        appMenu.addItem(checkForUpdatesItem)
+        
         appMenu.addItem(NSMenuItem.separator())
         
         // Preferences item
@@ -150,6 +161,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let newNoteItem = NSMenuItem(title: "New Note", action: #selector(newNote), keyEquivalent: "n")
         newNoteItem.target = self
         fileMenu.addItem(newNoteItem)
+        
+        fileMenu.addItem(NSMenuItem.separator())
+        
+        // Export submenu
+        let exportMenu = NSMenu(title: "Export")
+        let exportMenuItem = NSMenuItem(title: "Export", action: nil, keyEquivalent: "")
+        exportMenuItem.submenu = exportMenu
+        
+        let exportPDFItem = NSMenuItem(title: "Export as PDF", action: #selector(exportAsPDF), keyEquivalent: "p")
+        exportPDFItem.keyEquivalentModifierMask = [.command, .option]
+        exportPDFItem.target = self
+        exportMenu.addItem(exportPDFItem)
+        
+        let exportMarkdownItem = NSMenuItem(title: "Export as Markdown", action: #selector(exportAsMarkdown), keyEquivalent: "m")
+        exportMarkdownItem.keyEquivalentModifierMask = [.command, .option]
+        exportMarkdownItem.target = self
+        exportMenu.addItem(exportMarkdownItem)
+        
+        fileMenu.addItem(exportMenuItem)
         
         mainMenu.addItem(fileMenuItem)
         
@@ -261,11 +291,71 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 openNote(noteId: noteId)
             }
             
+        case NotificationManager.Category.mention.rawValue:
+            if let noteId = userInfo["noteId"] as? String {
+                // Open specific note
+                if response.actionIdentifier == "REPLY_MENTION" {
+                    // Open note and focus on reply box
+                    openNoteAndReply(noteId: noteId)
+                } else {
+                    openNote(noteId: noteId)
+                }
+            }
+            
+        case NotificationManager.Category.comment.rawValue:
+            if let noteId = userInfo["noteId"] as? String, 
+               let commentId = userInfo["commentId"] as? String {
+                if response.actionIdentifier == "REPLY_COMMENT" {
+                    // Open note and focus on reply box
+                    openNoteAndReplyToComment(noteId: noteId, commentId: commentId)
+                } else {
+                    // Simply open the note at the comment location
+                    openNoteAtComment(noteId: noteId, commentId: commentId)
+                }
+            }
+            
         default:
             break
         }
         
         completionHandler()
+    }
+    
+    // Open a note and scroll to the comment location
+    private func openNoteAtComment(noteId: String, commentId: String) {
+        if let noteURL = URL(string: "https://hackmd.io/\(noteId)#comment-\(commentId)") {
+            webView.load(URLRequest(url: noteURL))
+            mainWindow.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+    
+    // Open a note and focus on the reply interface
+    private func openNoteAndReply(noteId: String) {
+        openNote(noteId: noteId)
+        
+        // Wait for page to load then focus on reply box
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.webView.evaluateJavaScript("""
+                if (document.querySelector('.reply-box')) {
+                    document.querySelector('.reply-box').focus();
+                }
+            """, completionHandler: nil)
+        }
+    }
+    
+    // Open a note and focus on the reply interface for a specific comment
+    private func openNoteAndReplyToComment(noteId: String, commentId: String) {
+        openNoteAtComment(noteId: noteId, commentId: commentId)
+        
+        // Wait for page to load then focus on reply box
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.webView.evaluateJavaScript("""
+                if (document.querySelector('#comment-\(commentId) .reply-button')) {
+                    document.querySelector('#comment-\(commentId) .reply-button').click();
+                }
+            """, completionHandler: nil)
+        }
     }
     
     // MARK: - Menu Actions
@@ -300,6 +390,72 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // Open HackMD help page
         if let helpURL = URL(string: "https://hackmd.io/c/tutorials") {
             NSWorkspace.shared.open(helpURL)
+        }
+    }
+    
+    @objc func exportAsPDF() {
+        // Get the current WebViewController
+        if let mainWindowController = NSApp.windows.first?.windowController as? MainWindowController,
+           let webViewController = mainWindowController.contentViewController as? WebViewController {
+            webViewController.exportAsPDF(nil)
+        }
+    }
+    
+    @objc func exportAsMarkdown() {
+        // Get the current WebViewController
+        if let mainWindowController = NSApp.windows.first?.windowController as? MainWindowController,
+           let webViewController = mainWindowController.contentViewController as? WebViewController {
+            webViewController.exportAsMarkdown(nil)
+        }
+    }
+    
+    @objc func checkForUpdates(_ sender: Any? = nil) {
+        SparkleManager.shared.checkForUpdates()
+    }
+    
+    func checkForUpdates(inBackground: Bool = false) {
+        if inBackground {
+            SparkleManager.shared.checkForUpdatesInBackground()
+        } else {
+            SparkleManager.shared.checkForUpdates()
+        }
+    }
+    
+    // MARK: - URL Scheme Handling
+    
+    private func registerURLSchemeHandler() {
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleURLEvent(_:withReplyEvent:)),
+            forEventClass: AEEventClass(kInternetEventClass),
+            andEventID: AEEventID(kAEGetURL)
+        )
+    }
+    
+    @objc private func handleURLEvent(_ event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
+        guard let urlString = event.paramDescriptor(forKeyword: AEKeyword(keyDirectObject))?.stringValue,
+              let url = URL(string: urlString) else {
+            return
+        }
+        
+        handleURL(url)
+    }
+    
+    private func handleURL(_ url: URL) {
+        guard url.scheme == "hackmd" else { return }
+        
+        // Bring the app to the foreground
+        NSApp.activate(ignoringOtherApps: true)
+        
+        if url.host == "note", let noteId = url.path.replacingOccurrences(of: "/", with: "").isEmpty ? nil : url.path.replacingOccurrences(of: "/", with: "") {
+            // Handle note/[id] URLs
+            openNote(noteId: noteId)
+        } else if url.host == "widget" {
+            // Handle widget/open URLs
+            if url.path.contains("open") {
+                // Show main window
+                mainWindow.makeKeyAndOrderFront(nil)
+            }
         }
     }
     

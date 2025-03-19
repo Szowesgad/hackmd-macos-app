@@ -11,10 +11,16 @@ HackMD dla macOS to natywna aplikacja napisana w Swift, która zapewnia lepsze d
 - Natywna integracja z macOS
 - Tryb ciemny/jasny zgodny z systemem
 - Narzędzia developerskie
-- Powiadomienia systemowe
+- Powiadomienia systemowe z obsługą komentarzy i wzmianek
 - Wsparcie dla skrótów klawiszowych
-- Widgety macOS
+- Menu kontekstowe z dodatkowymi opcjami
+- Eksport dokumentów do PDF i Markdown
+- Automatyczne aktualizacje przez Sparkle
+- Widgety macOS pokazujące ostatnie notatki
+- Zaawansowane zarządzanie historią i zakładkami
 - Pełne wsparcie dla autoryzacji
+- Testowane jednostkowo kluczowe komponenty
+- Zautomatyzowany proces budowania z GitHub Actions
 
 ## Wymagania systemowe
 
@@ -34,9 +40,30 @@ HackMD dla macOS to natywna aplikacja napisana w Swift, która zapewnia lepsze d
 3. Skompiluj projekt (⌘+B)
 4. Uruchom aplikację (⌘+R)
 
+### Metoda 3: Użycie skryptu budującego
+1. Sklonuj repozytorium
+2. Uruchom skrypt budujący:
+   ```
+   cd hackmd-macos-app
+   chmod +x tools/build-dmg.sh
+   ./tools/build-dmg.sh
+   ```
+3. Zainstaluj aplikację z utworzonego pliku DMG (w katalogu artifacts)
+
 ## Rozwój projektu
 
 Szczegółowy plan rozwoju znajduje się w [ROADMAP.md](docs/ROADMAP.md).
+Aktualny status projektu jest opisany w [DEVSTAGE.md](DEVSTAGE.md).
+
+## Narzędzia deweloperskie
+
+Repozytorium zawiera zestaw narzędzi pomocnych podczas pracy nad aplikacją:
+
+- **tools/build-dmg.sh** - Skrypt do budowania aplikacji i tworzenia pliku DMG
+- **tools/debug_tools.sh** - Narzędzia do debugowania aplikacji
+- **tools/run_mac_tests.sh** - Skrypt do uruchamiania testów jednostkowych
+
+Instrukcje debugowania aplikacji znajdują się w [DEBUGGING.md](docs/DEBUGGING.md) i [DEBUG_DEEP_DIVE.md](docs/DEBUG_DEEP_DIVE.md).
 
 ## Współpraca
 

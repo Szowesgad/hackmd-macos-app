@@ -21,37 +21,43 @@ Projekt jest w fazie alfa-1. Zaimplementowana została podstawowa struktura apli
 - [x] System integracji powiadomień systemowych
 - [x] Pełne menu aplikacji zgodne z wytycznymi macOS
 - [x] Skonfigurowany GitHub Actions workflow do automatycznego budowania aplikacji
+- [x] Integracja z menu kontekstowym macOS
+- [x] Funkcja eksportu do różnych formatów (PDF, Markdown)
+- [x] Automatyczne aktualizacje przez Sparkle
+- [x] Widgety macOS korzystające z WidgetKit
+- [x] Ulepszenie obsługi zakładek i historii
+- [x] Zaawansowana integracja z systemem powiadomień (wsparcie dla komentarzy, wzmianek)
+- [x] Testy jednostkowe dla kluczowych komponentów
+- [x] Ulepszony proces budowania z GitHub Actions
 
 ## Do zaimplementowania w następnym sprincie
 
-- [ ] Integracja z menu kontekstowym macOS
-- [ ] Funkcja eksportu do różnych formatów
-- [ ] Widgety macOS korzystające z WidgetKit
-- [ ] Automatyczne aktualizacje przez Sparkle
-- [ ] Testy jednostkowe
+- [x] Integracja z menu kontekstowym macOS
+- [x] Funkcja eksportu do różnych formatów
+- [x] Widgety macOS korzystające z WidgetKit
+- [x] Automatyczne aktualizacje przez Sparkle
+- [x] Testy jednostkowe
 
 ## Znane problemy i ograniczenia
 
 1. Preferencje nie są jeszcze w pełni połączone z rzeczywistymi ustawieniami aplikacji
 2. Brak pełnej obsługi motywów (tylko podstawowe przełączanie trybu ciemny/jasny)
-3. Brak widgetów macOS
-4. Brak funkcji eksportu
 
 ## Priorytety na następny sprint
 
 1. **Wysoki priorytet**:
-   - Implementacja funkcji eksportu do różnych formatów (PDF, Markdown)
-   - Integracja z menu kontekstowym macOS
-   - Implementacja automatycznych aktualizacji przez Sparkle
+   - ✅ Implementacja funkcji eksportu do różnych formatów (PDF, Markdown)
+   - ✅ Integracja z menu kontekstowym macOS
+   - ✅ Implementacja automatycznych aktualizacji przez Sparkle
 
 2. **Średni priorytet**:
-   - Widgety macOS
-   - Ulepszenie obsługi zakładek i historii
-   - Zaawansowana integracja z systemem powiadomień
+   - ✅ Widgety macOS
+   - ✅ Ulepszenie obsługi zakładek i historii
+   - ✅ Zaawansowana integracja z systemem powiadomień
 
 3. **Niski priorytet**:
-   - Testy jednostkowe
-   - Dodatkowe ulepszenia UI
+   - ✅ Testy jednostkowe
+   - ✅ Dodatkowe ulepszenia UI
 
 ## Notatki techniczne
 

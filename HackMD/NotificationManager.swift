@@ -28,6 +28,36 @@ class NotificationManager {
         case noteUpdate = "NOTE_UPDATE"
         case collaboration = "COLLABORATION"
         case reminder = "REMINDER"
+        case mention = "MENTION"
+        case comment = "COMMENT"
+    }
+    
+    // Notification types for analytics and settings
+    enum NotificationType: String, CaseIterable {
+        case noteUpdate = "Note Updates"
+        case collaboration = "Collaboration Invites"
+        case comment = "Comments" 
+        case mention = "Mentions"
+        case reminder = "Reminders"
+        
+        var isEnabled: Bool {
+            get {
+                return UserDefaults.standard.bool(forKey: "notification_\(self.rawValue)")
+            }
+            set {
+                UserDefaults.standard.set(newValue, forKey: "notification_\(self.rawValue)")
+            }
+        }
+        
+        var category: Category {
+            switch self {
+            case .noteUpdate: return .noteUpdate
+            case .collaboration: return .collaboration
+            case .comment: return .comment
+            case .mention: return .mention
+            case .reminder: return .reminder
+            }
+        }
     }
     
     // MARK: - Initialization
@@ -57,7 +87,7 @@ class NotificationManager {
      * Sends a notification about note updates
      */
     func sendNoteUpdateNotification(title: String, note: String, noteId: String) {
-        guard isAuthorized else { return }
+        guard isAuthorized && NotificationType.noteUpdate.isEnabled else { return }
         
         let content = UNMutableNotificationContent()
         content.title = title
@@ -87,7 +117,7 @@ class NotificationManager {
      * Sends a notification about collaboration events
      */
     func sendCollaborationNotification(title: String, message: String, collaborator: String, noteId: String) {
-        guard isAuthorized else { return }
+        guard isAuthorized && NotificationType.collaboration.isEnabled else { return }
         
         let content = UNMutableNotificationContent()
         content.title = title
@@ -117,10 +147,77 @@ class NotificationManager {
     }
     
     /**
+     * Sends a notification about mentions
+     */
+    func sendMentionNotification(title: String, message: String, fromUser: String, noteId: String) {
+        guard isAuthorized && NotificationType.mention.isEnabled else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = message
+        content.sound = .default
+        content.categoryIdentifier = Category.mention.rawValue
+        
+        // Add user info
+        content.userInfo = [
+            "noteId": noteId,
+            "fromUser": fromUser
+        ]
+        
+        // Create a request with an immediate trigger
+        let request = UNNotificationRequest(
+            identifier: "mention-\(noteId)-\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        // Add the request to the notification center
+        notificationCenter.add(request) { error in
+            if let error = error {
+                print("Error sending mention notification: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    /**
+     * Sends a notification about comments
+     */
+    func sendCommentNotification(title: String, message: String, fromUser: String, noteId: String, commentId: String) {
+        guard isAuthorized && NotificationType.comment.isEnabled else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = message
+        content.sound = .default
+        content.categoryIdentifier = Category.comment.rawValue
+        
+        // Add user info
+        content.userInfo = [
+            "noteId": noteId,
+            "fromUser": fromUser,
+            "commentId": commentId
+        ]
+        
+        // Create a request with an immediate trigger
+        let request = UNNotificationRequest(
+            identifier: "comment-\(noteId)-\(commentId)",
+            content: content,
+            trigger: nil
+        )
+        
+        // Add the request to the notification center
+        notificationCenter.add(request) { error in
+            if let error = error {
+                print("Error sending comment notification: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    /**
      * Schedules a reminder notification
      */
     func scheduleReminderNotification(title: String, message: String, date: Date, noteId: String?) {
-        guard isAuthorized else { return }
+        guard isAuthorized && NotificationType.reminder.isEnabled else { return }
         
         let content = UNMutableNotificationContent()
         content.title = title
@@ -226,11 +323,53 @@ class NotificationManager {
             options: []
         )
         
+        // Mention category actions
+        let viewMentionAction = UNNotificationAction(
+            identifier: "VIEW_MENTION",
+            title: "View Mention",
+            options: .foreground
+        )
+        
+        let replyMentionAction = UNNotificationAction(
+            identifier: "REPLY_MENTION",
+            title: "Reply",
+            options: [.foreground, .authenticationRequired]
+        )
+        
+        let mentionCategory = UNNotificationCategory(
+            identifier: Category.mention.rawValue,
+            actions: [viewMentionAction, replyMentionAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        // Comment category actions
+        let viewCommentAction = UNNotificationAction(
+            identifier: "VIEW_COMMENT",
+            title: "View Comment",
+            options: .foreground
+        )
+        
+        let replyCommentAction = UNNotificationAction(
+            identifier: "REPLY_COMMENT",
+            title: "Reply",
+            options: [.foreground, .authenticationRequired]
+        )
+        
+        let commentCategory = UNNotificationCategory(
+            identifier: Category.comment.rawValue,
+            actions: [viewCommentAction, replyCommentAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
         // Register the notification categories
         notificationCenter.setNotificationCategories([
             noteUpdateCategory,
             collaborationCategory,
-            reminderCategory
+            reminderCategory,
+            mentionCategory,
+            commentCategory
         ])
     }
     
